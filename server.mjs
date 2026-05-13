@@ -200,8 +200,9 @@ createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/success") {
       const bookingId = url.searchParams.get("bookingId") || url.searchParams.get("client_reference_id");
       if (bookingId) {
+        console.log('✅ Retour de Stripe - Booking ID:', bookingId);
         // Marquer comme payé après retour de Stripe
-        await markBookingPaid(bookingId, req).catch(err => console.error("Erreur markBookingPaid:", err));
+        await markBookingPaid(bookingId, req).catch(err => console.error("❌ Erreur markBookingPaid:", err));
       }
       return serveFile(res, join(publicDir, "index.html"));
     }
@@ -598,8 +599,9 @@ async function createCheckoutSession(req, res) {
 
 async function markBookingPaid(bookingId, req) {
   if (isSupabaseConfigured()) {
-    const token = getBearerToken(req);
-    if (!token) throw new Error("Connexion requise");
+    // Utiliser le token de l'utilisateur s'il existe, sinon utiliser la clé service
+    const token = getBearerToken(req) || process.env.SUPABASE_ANON_KEY;
+
     await supabaseRequest(`/rest/v1/bookings?id=eq.${encodeURIComponent(bookingId)}`, {
       method: "PATCH",
       token,
@@ -609,9 +611,12 @@ async function markBookingPaid(bookingId, req) {
       }
     });
 
-    // Notifier n8n après paiement réussi
-    const booking = await findBookingById(bookingId, req);
+    // Récupérer la réservation pour notifier n8n
+    const response = await supabaseRequest(`/rest/v1/bookings?select=*&id=eq.${encodeURIComponent(bookingId)}&limit=1`, { token });
+    const booking = response[0] ? mapBookingFromDb(response[0]) : null;
+
     if (booking) {
+      console.log('📧 Envoi webhook n8n pour réservation:', bookingId);
       notifyAutomation(booking).catch((error) => console.warn("Webhook ignore:", error.message));
     }
     return;
@@ -631,7 +636,11 @@ async function markBookingPaid(bookingId, req) {
 }
 
 async function notifyAutomation(booking) {
-  if (!process.env.WEBHOOK_URL) return;
+  if (!process.env.WEBHOOK_URL) {
+    console.warn('⚠️  WEBHOOK_URL non configuré dans .env');
+    return;
+  }
+
   const payload = {
     nom: booking.name,
     email: booking.email,
@@ -642,11 +651,21 @@ async function notifyAutomation(booking) {
     prix_total: booking.total,
     statut_paiement: booking.paymentStatus
   };
-  await fetch(process.env.WEBHOOK_URL, {
+
+  console.log('📤 Envoi webhook n8n:', process.env.WEBHOOK_URL);
+  console.log('📦 Payload:', JSON.stringify(payload, null, 2));
+
+  const response = await fetch(process.env.WEBHOOK_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
+
+  if (response.ok) {
+    console.log('✅ Webhook n8n envoyé avec succès (HTTP', response.status, ')');
+  } else {
+    console.error('❌ Erreur webhook n8n (HTTP', response.status, ')');
+  }
 }
 
 async function sendInvoiceToN8n(req, res) {
