@@ -700,12 +700,53 @@ async function renderSuccess(params) {
         ` : ""}
         <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
           <button class="secondary-btn" type="button" onclick="window.print()" style="min-width: 200px;">PDF de confirmation</button>
+          ${booking ? `<button class="secondary-btn" type="button" id="sendInvoiceBtn" data-booking-id="${escapeHtml(booking.id)}" style="min-width: 200px;">📧 Envoyer facture par email</button>` : ''}
           <a class="primary-btn" href="#/" style="min-width: 200px;">Retour à l'accueil</a>
           <a class="secondary-btn" href="#/listings" style="min-width: 200px;">Voir tous les logements</a>
         </div>
+        <p id="invoiceMessage" class="muted" style="margin-top: 16px; text-align: center;" hidden></p>
       </div>
     </section>
   `;
+
+  const sendInvoiceBtn = document.querySelector("#sendInvoiceBtn");
+  if (sendInvoiceBtn) {
+    sendInvoiceBtn.addEventListener("click", async () => {
+      const bookingId = sendInvoiceBtn.dataset.bookingId;
+      const message = document.querySelector("#invoiceMessage");
+      const originalText = sendInvoiceBtn.textContent;
+
+      sendInvoiceBtn.disabled = true;
+      sendInvoiceBtn.textContent = "Envoi en cours...";
+      message.hidden = true;
+
+      try {
+        const headers = await authHeaders();
+        const response = await fetch("/api/send-invoice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...headers },
+          body: JSON.stringify({ bookingId })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Erreur lors de l'envoi");
+        }
+
+        message.hidden = false;
+        message.textContent = "✅ Facture envoyée par email avec succès !";
+        message.style.color = "var(--success, #2e7d32)";
+      } catch (error) {
+        message.hidden = false;
+        message.textContent = `❌ ${error.message}`;
+        message.style.color = "var(--error, #d32f2f)";
+      } finally {
+        sendInvoiceBtn.disabled = false;
+        sendInvoiceBtn.textContent = originalText;
+      }
+    });
+  }
 }
 
 function renderHost() {
@@ -901,9 +942,11 @@ async function renderAccount() {
   document.querySelector("#logoutButton")?.addEventListener("click", logoutAccount);
 
   try {
+    console.log('🔍 Récupération des données pour:', currentUser.email);
     const res = await fetch(`/api/account/data?email=${encodeURIComponent(currentUser.email)}`);
     if (!res.ok) throw new Error("Erreur de chargement");
     const data = await res.json();
+    console.log('📊 Données reçues:', data);
     
     const container = document.querySelector("#accountDataContainer");
     if (!container) return;
@@ -933,7 +976,14 @@ async function renderAccount() {
       });
       html += `</div>`;
     } else {
-      html += `<p class="muted" style="margin-bottom:32px">Vous n'avez pas encore réservé de voyage. <a href="#/listings" style="color:var(--brand); font-weight:600;">Découvrir nos logements</a></p>`;
+      html += `
+        <div style="border:1px solid #fff3e0; background: #fffaf0; border-radius:12px; padding:20px; margin-bottom:32px">
+          <p style="margin:0 0 12px; font-weight: 600;">🔍 Aucune réservation trouvée</p>
+          <p style="margin:0 0 12px; font-size: 0.9rem;">Email de connexion : <strong>${escapeHtml(currentUser.email)}</strong></p>
+          <p style="margin:0; font-size: 0.9rem;">Les réservations doivent être faites avec cet email pour apparaître ici.</p>
+          <p style="margin:12px 0 0;"><a href="#/listings" style="color:var(--brand); font-weight:600;">Découvrir nos logements</a></p>
+        </div>
+      `;
     }
 
     // Listings

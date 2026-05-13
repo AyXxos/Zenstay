@@ -193,6 +193,10 @@ createServer(async (req, res) => {
       return createCheckoutSession(req, res);
     }
 
+    if (req.method === "POST" && url.pathname === "/api/send-invoice") {
+      return sendInvoiceToN8n(req, res);
+    }
+
     if (req.method === "GET" && url.pathname === "/success") {
       const bookingId = url.searchParams.get("bookingId") || url.searchParams.get("client_reference_id");
       if (bookingId && !isSupabaseConfigured()) await markBookingPaid(bookingId);
@@ -631,6 +635,174 @@ async function notifyAutomation(booking) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
+}
+
+async function sendInvoiceToN8n(req, res) {
+  const { bookingId } = await readBody(req);
+  if (!bookingId) return sendJson(res, { error: "bookingId requis" }, 400);
+
+  const booking = await findBookingById(bookingId, req);
+  if (!booking) return sendJson(res, { error: "Reservation introuvable" }, 404);
+
+  const invoiceHtml = generateInvoiceHtml(booking);
+
+  const webhookUrl = process.env.WEBHOOK_INVOICE_URL || process.env.WEBHOOK_URL;
+  if (!webhookUrl) {
+    return sendJson(res, { error: "WEBHOOK_INVOICE_URL non configure" }, 500);
+  }
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        bookingId: booking.id,
+        email: booking.email,
+        name: booking.name,
+        invoiceHtml: invoiceHtml,
+        booking: {
+          id: booking.id,
+          listingTitle: booking.listingTitle,
+          city: booking.city,
+          checkIn: booking.checkIn,
+          checkOut: booking.checkOut,
+          guests: booking.guests,
+          nights: booking.nights,
+          pricePerNight: booking.pricePerNight,
+          subtotal: booking.subtotal,
+          discount: booking.discount,
+          total: booking.total,
+          paymentStatus: booking.paymentStatus
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Webhook failed: ${response.status}`);
+    }
+
+    sendJson(res, { success: true, message: "Facture envoyee" });
+  } catch (error) {
+    console.error("Erreur envoi facture:", error);
+    sendJson(res, { error: "Erreur lors de l'envoi de la facture" }, 500);
+  }
+}
+
+function generateInvoiceHtml(booking) {
+  const euro = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+
+  return `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facture ZenStay - ${booking.id}</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; color: #333; }
+    .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #FF385C; padding-bottom: 20px; }
+    .header h1 { margin: 0; color: #FF385C; }
+    .section { margin-bottom: 30px; }
+    .section h2 { color: #222; font-size: 18px; margin-bottom: 15px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .info-item { padding: 10px; background: #f7f7f7; border-radius: 5px; }
+    .info-label { font-weight: bold; color: #666; font-size: 12px; text-transform: uppercase; }
+    .info-value { font-size: 16px; margin-top: 5px; }
+    .total-section { background: #FF385C; color: white; padding: 20px; border-radius: 8px; margin-top: 30px; }
+    .total-line { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .total-final { font-size: 24px; font-weight: bold; border-top: 2px solid white; padding-top: 15px; margin-top: 15px; }
+    .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+    .status-paid { background: #4CAF50; color: white; }
+    .status-pending { background: #FF9800; color: white; }
+    .footer { text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; color: #999; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🏡 ZenStay</h1>
+    <p>Facture de réservation</p>
+  </div>
+
+  <div class="section">
+    <h2>Informations client</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Nom</div>
+        <div class="info-value">${booking.name}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Email</div>
+        <div class="info-value">${booking.email}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Détails de la réservation</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Numéro de réservation</div>
+        <div class="info-value">${booking.id}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Statut</div>
+        <div class="info-value">
+          <span class="status-badge ${booking.paymentStatus === 'paid' ? 'status-paid' : 'status-pending'}">
+            ${booking.paymentStatus === 'paid' ? 'PAYÉ' : 'EN ATTENTE'}
+          </span>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Logement</div>
+        <div class="info-value">${booking.listingTitle}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Ville</div>
+        <div class="info-value">${booking.city}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Arrivée</div>
+        <div class="info-value">${booking.checkIn}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Départ</div>
+        <div class="info-value">${booking.checkOut}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Voyageurs</div>
+        <div class="info-value">${booking.guests} personne(s)</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Nuits</div>
+        <div class="info-value">${booking.nights} nuit(s)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="total-section">
+    <div class="total-line">
+      <span>${euro.format(booking.pricePerNight)} × ${booking.nights} nuits</span>
+      <span>${euro.format(booking.subtotal)}</span>
+    </div>
+    ${booking.discount > 0 ? `
+    <div class="total-line">
+      <span>Réduction (${booking.discountCode})</span>
+      <span>-${euro.format(booking.discount)}</span>
+    </div>
+    ` : ''}
+    <div class="total-line total-final">
+      <span>TOTAL</span>
+      <span>${euro.format(booking.total)}</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Merci d'avoir choisi ZenStay pour votre séjour !</p>
+    <p>© ${new Date().getFullYear()} ZenStay - Logements calmes</p>
+  </div>
+</body>
+</html>
+  `.trim();
 }
 
 function getOrigin(req) {
