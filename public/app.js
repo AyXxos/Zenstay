@@ -200,6 +200,18 @@ async function fetchListings() {
 
 async function render() {
   await refreshCurrentUser();
+
+  // Check if we're on the /success path (Stripe redirect)
+  if (location.pathname === "/success" && !location.hash) {
+    const params = new URLSearchParams(location.search);
+    const bookingId = params.get("bookingId") || params.get("client_reference_id");
+    if (bookingId) {
+      // Redirect to hash-based success page to maintain navigation
+      location.replace(`/#/success?bookingId=${encodeURIComponent(bookingId)}`);
+      return;
+    }
+  }
+
   const route = (location.hash.replace(/^#\/?/, "") || "").split("?")[0];
   const [page, id] = route.split("/");
 
@@ -211,7 +223,6 @@ async function render() {
   if (page === "login") return renderLogin();
   if (page === "register") return renderRegister();
   if (page === "host") return renderHost();
-  if (location.pathname === "/success") return renderSuccess(new URLSearchParams(location.search));
   renderHome();
 }
 
