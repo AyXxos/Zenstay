@@ -1,67 +1,125 @@
-# ZenStay
+# ZenStay - Plateforme de logements calmes 🏡
 
-Application web autonome creee depuis `CDC.md`.
+Application web autonome de réservation de logements calmes avec niveau sonore mesuré.
 
-## Lancer le site
-
-```bash
-npm start
-```
-
-Par defaut, le serveur ecoute `http://localhost:3000`. Si le port est pris :
+## 🚀 Démarrage rapide
 
 ```bash
-PORT=4173 npm start
+node server.mjs
 ```
 
-## Fonctionnalites
+Par défaut, le serveur écoute `http://localhost:3000`. Si le port est pris, il utilisera automatiquement le port suivant disponible (4173, etc.).
 
-- Landing page responsive ZenStay.
-- Catalogue de 6 logements calmes.
-- Page detail logement avec note, capacite, niveau sonore, equipements et avis.
-- Filtres par ville, prix et voyageurs.
-- Formulaire de reservation avec calcul du total.
-- Dates de reservation au format francais `jj/mm/aaaa`.
-- Selection jusqu'a 20 voyageurs.
-- Code promo `EARLYBIRD` avec remise de 10%.
-- Sauvegarde des reservations dans `data/bookings.json`.
-- Ajout de logements hote uniquement avec compte connecte.
-- Image de logement en piece jointe, envoyee dans Supabase Storage (`listing-images`).
-- Donnees logements et reservations dans Supabase quand `.env` est configure.
-- Gestion de compte avec Supabase.
-- Bouton paiement Stripe Checkout en mode test.
-- Page succes et impression PDF de confirmation.
-- Dark mode.
-- Webhook Make / n8n / Zapier compatible Google Sheet `bookings`.
+## 🧪 Mode Test / Démo
 
-## Stripe test
+### Voir les réservations dans votre profil :
+1. Cliquer sur l'icône utilisateur (menu hamburger + avatar)
+2. Se connecter avec : **`test@example.com`** (n'importe quel mot de passe)
+3. Aller dans "Profil" → Vous verrez **2 réservations de test** avec badges de statut
 
-Sans cle Stripe, le paiement utilise un mode demo local et redirige vers la page succes.
+### Tester les paiements Stripe :
+- Carte de test : **`4242 4242 4242 4242`**
+- Date : n'importe quelle date future
+- CVC : n'importe quel code à 3 chiffres
 
-Pour utiliser Stripe Checkout test :
+## ✨ Fonctionnalités
+
+- 🏠 Landing page responsive ZenStay
+- 📋 Catalogue de 6 logements calmes avec filtres (ville, prix, voyageurs)
+- 🔍 Page détail logement avec note, capacité, niveau sonore, équipements et avis
+- 📅 Formulaire de réservation avec calcul automatique du total
+- 💳 Dates au format français `jj/mm/aaaa`
+- 👥 Sélection jusqu'à 20 voyageurs
+- 🎟️ Code promo `EARLYBIRD` avec remise de 10%
+- 💾 Sauvegarde des réservations dans `data/bookings.json`
+- 🏡 Ajout de logements hôte (compte requis)
+- 🖼️ Upload d'images vers Supabase Storage (`listing-images`)
+- 🔐 Gestion de compte avec Supabase ou mode local
+- 💳 Paiement Stripe Checkout (mode test)
+- ✅ Page succès avec impression PDF de confirmation
+- 🌓 Dark mode
+- 📧 **Newsletter avec webhook n8n**
+- 👤 **Profil utilisateur avec badges de statut et liens cliquables**
+- 🔗 Webhook Make / n8n / Zapier pour automatisation
+
+## ⚙️ Configuration
+
+Copier `.env.example` vers `.env` et configurer :
+
+```env
+PORT=3000
+STRIPE_SECRET_KEY=sk_test_xxx
+WEBHOOK_URL=https://n8n.fatonfaton.fr/webhook/6cccda76-7cba-42dc-8bbc-ebbd4ddd313b
+SUPABASE_URL=https://votre-projet.supabase.co
+SUPABASE_ANON_KEY=votre_anon_key
+```
+
+## 📧 Newsletter (n8n)
+
+Le formulaire newsletter dans le footer envoie les emails au webhook n8n configuré dans `WEBHOOK_URL`.
+
+Format envoyé :
+```json
+{
+  "email": "utilisateur@example.com"
+}
+```
+
+## 🔒 Mode Stripe Test
+
+Sans clé Stripe, le paiement utilise un mode démo local.
+
+Avec `STRIPE_SECRET_KEY=sk_test_xxx`, utilisez la carte test : **4242 4242 4242 4242**
+
+## 🤖 Webhook automatisation (réservations)
+
+Pour recevoir les réservations dans Make/n8n/Zapier :
 
 ```bash
-STRIPE_SECRET_KEY=sk_test_xxx npm start
+WEBHOOK_URL=https://votre-webhook.example node server.mjs
 ```
 
-Carte test Stripe : `4242 4242 4242 4242`.
+Payload envoyé :
+```json
+{
+  "nom": "Jean Dupont",
+  "email": "jean@example.com",
+  "logement": "Villa calme a Biarritz",
+  "ville": "Biarritz",
+  "dates": "15/06/2026 -> 22/06/2026",
+  "voyageurs": 4,
+  "prix_total": 756,
+  "statut_paiement": "paid"
+}
+```
 
-## Automatisation
+## 🗄️ Comptes Supabase
 
-Pour notifier Make, n8n ou Zapier a chaque reservation :
+Pour activer Supabase (base de données + auth) :
 
 ```bash
-WEBHOOK_URL=https://votre-webhook.example npm start
+SUPABASE_URL=https://votre-projet.supabase.co
+SUPABASE_ANON_KEY=votre_anon_key
 ```
 
-Le payload contient : nom, email, logement, ville, dates, voyageurs, prix total et statut de paiement.
+Sans ces variables, l'app fonctionne en **mode local** avec fichiers JSON.
 
-## Comptes Supabase
+## 📁 Structure
 
-Pour activer la gestion de compte avec Supabase :
-
-```bash
-SUPABASE_URL=https://votre-projet.supabase.co SUPABASE_ANON_KEY=votre_anon_key npm start
+```
+├── server.mjs              # Serveur Node.js
+├── public/
+│   ├── index.html         # Page principale
+│   ├── app.js             # JavaScript frontend
+│   └── styles.css         # Styles CSS
+├── data/
+│   ├── bookings.json      # Réservations (mode local)
+│   └── listings.json      # Logements
+├── .env                   # Configuration (non commité)
+└── .env.example           # Template de configuration
 ```
 
-Sans ces variables, la page compte fonctionne en mode local de demonstration dans le navigateur.
+## 🔗 Liens
+
+- **Repository** : https://github.com/AyXxos/Zenstay.git
+- **Changelog** : Voir [CHANGELOG.md](CHANGELOG.md)

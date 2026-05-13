@@ -1185,9 +1185,22 @@ async function submitNewsletter(event) {
   try {
     const response = await fetch("https://n8n.fatonfaton.fr/webhook/6cccda76-7cba-42dc-8bbc-ebbd4ddd313b", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({ email: email })
     });
+
+    // N8n renvoie souvent un 200 même si le body n'est pas JSON
+    const contentType = response.headers.get("content-type");
+    let data;
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      data = await response.text();
+    }
 
     if (!response.ok) {
       throw new Error("Erreur lors de l'inscription à la newsletter");
@@ -1197,7 +1210,10 @@ async function submitNewsletter(event) {
     message.textContent = "Merci ! Vous êtes inscrit(e) à notre newsletter.";
     message.style.color = "var(--success, #2e7d32)";
     form.reset();
+
+    console.log("Newsletter inscription réussie:", data);
   } catch (error) {
+    console.error("Erreur newsletter:", error);
     message.hidden = false;
     message.textContent = error.message || "Une erreur est survenue. Réessayez plus tard.";
     message.style.color = "var(--error, #d32f2f)";

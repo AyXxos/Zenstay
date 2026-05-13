@@ -1,1 +1,41 @@
-[]
+[
+  {
+    "id": "booking-test-001",
+    "createdAt": "2026-05-10T10:30:00.000Z",
+    "name": "Jean Dupont",
+    "email": "test@example.com",
+    "listingId": "villa-biarritz",
+    "listingTitle": "Villa calme a Biarritz",
+    "city": "Biarritz",
+    "checkIn": "15/06/2026",
+    "checkOut": "22/06/2026",
+    "guests": 4,
+    "nights": 7,
+    "pricePerNight": 120,
+    "subtotal": 840,
+    "discountCode": "EARLYBIRD",
+    "discount": 84,
+    "total": 756,
+    "paymentStatus": "paid",
+    "paidAt": "2026-05-10T10:35:00.000Z"
+  },
+  {
+    "id": "booking-test-002",
+    "createdAt": "2026-05-12T14:20:00.000Z",
+    "name": "Jean Dupont",
+    "email": "test@example.com",
+    "listingId": "chalet-chamonix",
+    "listingTitle": "Chalet paisible a Chamonix",
+    "city": "Chamonix",
+    "checkIn": "01/08/2026",
+    "checkOut": "08/08/2026",
+    "guests": 5,
+    "nights": 7,
+    "pricePerNight": 170,
+    "subtotal": 1190,
+    "discountCode": "",
+    "discount": 0,
+    "total": 1190,
+    "paymentStatus": "pending"
+  }
+]
