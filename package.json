@@ -1,0 +1,13 @@
+{
+  "name": "zenstay",
+  "version": "1.0.0",
+  "description": "Application web ZenStay, clone simplifie Airbnb pour logements calmes.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

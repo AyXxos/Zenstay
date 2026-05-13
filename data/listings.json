@@ -1,0 +1,134 @@
+[
+  {
+    "id": "villa-biarritz",
+    "title": "Villa calme a Biarritz",
+    "city": "Biarritz",
+    "price": 120,
+    "guests": 4,
+    "noise": 32,
+    "rating": 4.9,
+    "image": "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=1400&q=80",
+    "description": "Une villa lumineuse a dix minutes de l'ocean, isolee des axes passants et pensee pour des sejours reposants.",
+    "amenities": [
+      "Jardin prive",
+      "Cuisine equipee",
+      "Parking",
+      "Espace yoga",
+      "Wifi fibre"
+    ],
+    "reviews": [
+      "Silence rare pour Biarritz, parfait pour teletravailler.",
+      "Tres belle lumiere et nuits vraiment calmes."
+    ]
+  },
+  {
+    "id": "studio-annecy",
+    "title": "Studio zen a Annecy",
+    "city": "Annecy",
+    "price": 85,
+    "guests": 2,
+    "noise": 30,
+    "rating": 4.8,
+    "image": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1400&q=80",
+    "description": "Un cocon minimaliste proche du lac, avec double vitrage, literie premium et ambiance apaisante.",
+    "amenities": [
+      "Vue montagne",
+      "Kitchenette",
+      "Double vitrage",
+      "Literie queen",
+      "Local velo"
+    ],
+    "reviews": [
+      "Petit mais tres bien pense.",
+      "Le quartier est doux et silencieux le soir."
+    ]
+  },
+  {
+    "id": "maison-aix",
+    "title": "Maison nature a Aix-en-Provence",
+    "city": "Aix-en-Provence",
+    "price": 150,
+    "guests": 6,
+    "noise": 34,
+    "rating": 4.7,
+    "image": "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1400&q=80",
+    "description": "Maison familiale au bord des pins, grande terrasse ombragee et pieces fraiches pour ralentir le rythme.",
+    "amenities": [
+      "Terrasse",
+      "Piscine",
+      "Climatisation douce",
+      "Bureau",
+      "Barbecue"
+    ],
+    "reviews": [
+      "Ideal avec enfants, beaucoup d'espace.",
+      "On entend surtout les cigales."
+    ]
+  },
+  {
+    "id": "cabane-dordogne",
+    "title": "Cabane boisee en Dordogne",
+    "city": "Dordogne",
+    "price": 95,
+    "guests": 3,
+    "noise": 28,
+    "rating": 4.9,
+    "image": "https://images.unsplash.com/photo-1482192505345-5655af888cc4?auto=format&fit=crop&w=1400&q=80",
+    "description": "Cabane en bois avec poele, grande baie vitree et sentier prive au coeur d'un domaine forestier.",
+    "amenities": [
+      "Poele a bois",
+      "Sentier prive",
+      "Petit dejeuner",
+      "Hamac",
+      "Cuisine compacte"
+    ],
+    "reviews": [
+      "Le lieu le plus calme que nous ayons reserve.",
+      "Simple, chaleureux, impeccable."
+    ]
+  },
+  {
+    "id": "appartement-nice",
+    "title": "Appartement vue mer a Nice",
+    "city": "Nice",
+    "price": 130,
+    "guests": 4,
+    "noise": 35,
+    "rating": 4.6,
+    "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80",
+    "description": "Appartement aerien sur une rue residentielle, balcon mer et chambres cote cour pour des nuits paisibles.",
+    "amenities": [
+      "Balcon",
+      "Vue mer",
+      "Ascenseur",
+      "Climatisation",
+      "Lave-linge"
+    ],
+    "reviews": [
+      "Tres bien place sans etre bruyant.",
+      "Balcon parfait pour le petit dejeuner."
+    ]
+  },
+  {
+    "id": "chalet-chamonix",
+    "title": "Chalet paisible a Chamonix",
+    "city": "Chamonix",
+    "price": 170,
+    "guests": 5,
+    "noise": 31,
+    "rating": 4.8,
+    "image": "https://images.unsplash.com/photo-1518732714860-b62714ce0c59?auto=format&fit=crop&w=1400&q=80",
+    "description": "Chalet chaleureux avec vue sur les sommets, sauna, coin lecture et isolation acoustique renforcee.",
+    "amenities": [
+      "Sauna",
+      "Cheminee",
+      "Local ski",
+      "Cuisine ouverte",
+      "Coin lecture"
+    ],
+    "reviews": [
+      "Le chalet est aussi calme que beau.",
+      "Tres confortable apres les randonnees."
+    ]
+  }
+]
