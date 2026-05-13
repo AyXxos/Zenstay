@@ -1,0 +1,315 @@
+{
+  "name": "ZenStay - Réservations & Paiements",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "498996d1-1181-4c7f-aaa4-0c2dfcba4276/webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "c1c16982-1369-458f-a3d5-73a4176b40e0",
+      "name": "Webhook ZenStay Réservations",
+      "webhookId": "498996d1-1181-4c7f-aaa4-0c2dfcba4276"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.statut_paiement }}",
+              "operation": "equals",
+              "value2": "paid"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "filter-paid-only",
+      "name": "Si paiement réussi"
+    },
+    {
+      "parameters": {
+        "fromEmail": "adamsicaud@gmail.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "✅ Confirmation de votre réservation ZenStay",
+        "html": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n  <h2 style=\"color: #FF385C;\">Merci {{ $json.nom }} !</h2>\n  <p>Votre réservation pour <strong>{{ $json.logement }}</strong> à {{ $json.ville }} est confirmée.</p>\n  \n  <div style=\"background: #f7f7f7; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n    <p style=\"margin: 5px 0;\"><strong>📅 Dates :</strong> {{ $json.dates }}</p>\n    <p style=\"margin: 5px 0;\"><strong>👥 Voyageurs :</strong> {{ $json.voyageurs }} personne(s)</p>\n    <p style=\"margin: 5px 0;\"><strong>💰 Total payé :</strong> {{ $json.prix_total }} €</p>\n  </div>\n  \n  <p>Nous avons hâte de vous accueillir !</p>\n  <p style=\"color: #666;\">L'équipe ZenStay</p>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        112
+      ],
+      "id": "38c38338-1a76-4818-a7c5-3ebc75c688ed",
+      "name": "Email pour l'acheteur",
+      "webhookId": "be873c5d-8b96-4918-afba-322683019e56",
+      "credentials": {
+        "smtp": {
+          "id": "o6YcbQtfFyjKBPNL",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "adamsicaud@gmail.com",
+        "toEmail": "adamsicaud@gmail.com",
+        "subject": "🏠 Nouvelle réservation ZenStay - {{ $json.logement }}",
+        "html": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n  <h2 style=\"color: #FF385C;\">Nouvelle réservation !</h2>\n  \n  <div style=\"background: #f7f7f7; padding: 20px; border-radius: 8px; margin: 20px 0;\">\n    <p style=\"margin: 8px 0;\"><strong>👤 Client :</strong> {{ $json.nom }}</p>\n    <p style=\"margin: 8px 0;\"><strong>📧 Email :</strong> {{ $json.email }}</p>\n    <p style=\"margin: 8px 0;\"><strong>🏠 Logement :</strong> {{ $json.logement }}</p>\n    <p style=\"margin: 8px 0;\"><strong>📍 Ville :</strong> {{ $json.ville }}</p>\n    <p style=\"margin: 8px 0;\"><strong>📅 Dates :</strong> {{ $json.dates }}</p>\n    <p style=\"margin: 8px 0;\"><strong>👥 Voyageurs :</strong> {{ $json.voyageurs }} personne(s)</p>\n    <p style=\"margin: 8px 0;\"><strong>💰 Prix total :</strong> {{ $json.prix_total }} €</p>\n    <p style=\"margin: 8px 0;\"><strong>✅ Statut :</strong> <span style=\"color: #2e7d32;\">{{ $json.statut_paiement }}</span></p>\n  </div>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        -80
+      ],
+      "id": "cb7442f5-6540-42eb-91a2-d9bc6319113e",
+      "name": "Email pour l'entreprise",
+      "webhookId": "be873c5d-8b96-4918-afba-322683019e56",
+      "credentials": {
+        "smtp": {
+          "id": "o6YcbQtfFyjKBPNL",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "6cccda76-7cba-42dc-8bbc-ebbd4ddd313b",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        320
+      ],
+      "id": "9f0e2408-c8a7-422c-90c2-dba09bf70cf7",
+      "name": "Webhook Newsletter",
+      "webhookId": "6cccda76-7cba-42dc-8bbc-ebbd4ddd313b"
+    },
+    {
+      "parameters": {
+        "fromEmail": "adamsicaud@gmail.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "📧 Bienvenue à la newsletter ZenStay",
+        "html": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n  <h2 style=\"color: #FF385C;\">Bienvenue !</h2>\n  <p>Merci de vous être inscrit à notre newsletter.</p>\n  <p>Vous recevrez bientôt nos meilleures offres de logements calmes.</p>\n  <p style=\"color: #666;\">L'équipe ZenStay</p>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        64,
+        320
+      ],
+      "id": "20fef27a-e6e9-4e42-b20a-e0ed6fa47a3c",
+      "name": "Email Newsletter",
+      "webhookId": "be873c5d-8b96-4918-afba-322683019e56",
+      "credentials": {
+        "smtp": {
+          "id": "o6YcbQtfFyjKBPNL",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1g_oWHzoeqMjMm22_dZtZDVdyHUuREeMK_UsMykDn9Ac/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Bookings",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g_oWHzoeqMjMm22_dZtZDVdyHUuREeMK_UsMykDn9Ac/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nom du client": "={{ $json.nom }}",
+            "Email": "={{ $json.email }}",
+            "Logement": "={{ $json.logement }}",
+            "Ville": "={{ $json.ville }}",
+            "Dates": "={{ $json.dates }}",
+            "Voyageurs": "={{ $json.voyageurs }}",
+            "Prix total": "={{ $json.prix_total }} €",
+            "Statut": "={{ $json.statut_paiement }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Nom du client",
+              "displayName": "Nom du client",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Logement",
+              "displayName": "Logement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Ville",
+              "displayName": "Ville",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dates",
+              "displayName": "Dates",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Voyageurs",
+              "displayName": "Voyageurs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Prix total",
+              "displayName": "Prix total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Statut",
+              "displayName": "Statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        464,
+        -80
+      ],
+      "id": "7fdb86dd-1ada-4029-a1a3-a9bda8bcea0d",
+      "name": "Ajout du booking",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pA6IH0H5G9BhRfWh",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook ZenStay Réservations": {
+      "main": [
+        [
+          {
+            "node": "Si paiement réussi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Si paiement réussi": {
+      "main": [
+        [
+          {
+            "node": "Email pour l'entreprise",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email pour l'acheteur",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email pour l'entreprise": {
+      "main": [
+        [
+          {
+            "node": "Ajout du booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Newsletter": {
+      "main": [
+        [
+          {
+            "node": "Email Newsletter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4ff4a355-fff3-42ca-8af8-8853e7ea8f8d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0bedb3fc5ad8bd5853295b0fd272dea6b7eafe7c53bfe663a769ddcff3ac1073"
+  },
+  "id": "GwO0cLAaIz8LIf5B",
+  "tags": []
+}
