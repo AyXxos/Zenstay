@@ -199,7 +199,10 @@ createServer(async (req, res) => {
 
     if (req.method === "GET" && url.pathname === "/success") {
       const bookingId = url.searchParams.get("bookingId") || url.searchParams.get("client_reference_id");
-      if (bookingId && !isSupabaseConfigured()) await markBookingPaid(bookingId);
+      if (bookingId) {
+        // Marquer comme payé après retour de Stripe
+        await markBookingPaid(bookingId, req).catch(err => console.error("Erreur markBookingPaid:", err));
+      }
       return serveFile(res, join(publicDir, "index.html"));
     }
 
@@ -605,6 +608,12 @@ async function markBookingPaid(bookingId, req) {
         paid_at: new Date().toISOString()
       }
     });
+
+    // Notifier n8n après paiement réussi
+    const booking = await findBookingById(bookingId, req);
+    if (booking) {
+      notifyAutomation(booking).catch((error) => console.warn("Webhook ignore:", error.message));
+    }
     return;
   }
   const bookings = await readBookings();
@@ -616,6 +625,9 @@ async function markBookingPaid(bookingId, req) {
     paidAt: new Date().toISOString()
   };
   await saveBookings(bookings);
+
+  // Notifier n8n après paiement réussi
+  notifyAutomation(bookings[index]).catch((error) => console.warn("Webhook ignore:", error.message));
 }
 
 async function notifyAutomation(booking) {
