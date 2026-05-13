@@ -1,0 +1,149 @@
+{
+  "name": "ZenStay - Newsletter",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "6cccda76-7cba-42dc-8bbc-ebbd4ddd313b",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "webhook-newsletter",
+      "name": "Webhook Newsletter",
+      "webhookId": "6cccda76-7cba-42dc-8bbc-ebbd4ddd313b"
+    },
+    {
+      "parameters": {
+        "fromEmail": "adamsicaud@gmail.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "📧 Bienvenue à la newsletter ZenStay !",
+        "html": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;\">\n  <div style=\"text-align: center; margin-bottom: 30px;\">\n    <h1 style=\"color: #FF385C; margin: 0;\">🏡 ZenStay</h1>\n    <p style=\"color: #666; font-size: 14px;\">Logements calmes pour séjours apaisants</p>\n  </div>\n  \n  <h2 style=\"color: #222; font-size: 24px;\">Bienvenue !</h2>\n  \n  <p style=\"line-height: 1.6; color: #333;\">Merci de vous être inscrit à notre newsletter.</p>\n  \n  <p style=\"line-height: 1.6; color: #333;\">Vous recevrez bientôt :</p>\n  <ul style=\"line-height: 1.8; color: #333;\">\n    <li>✨ Nos meilleures offres de logements calmes</li>\n    <li>🏠 Les nouveaux logements disponibles</li>\n    <li>💡 Des conseils pour des séjours zen</li>\n    <li>🎁 Des codes promo exclusifs</li>\n  </ul>\n  \n  <div style=\"background: #f7f7f7; padding: 20px; border-radius: 8px; margin: 30px 0;\">\n    <p style=\"margin: 0; color: #666; font-size: 14px;\">📧 Votre email : <strong>{{ $json.email }}</strong></p>\n  </div>\n  \n  <p style=\"color: #666; font-size: 14px; text-align: center; margin-top: 30px;\">L'équipe ZenStay</p>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        0
+      ],
+      "id": "email-bienvenue",
+      "name": "Email de bienvenue",
+      "credentials": {
+        "smtp": {
+          "id": "o6YcbQtfFyjKBPNL",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1g_oWHzoeqMjMm22_dZtZDVdyHUuREeMK_UsMykDn9Ac/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Newsletter",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g_oWHzoeqMjMm22_dZtZDVdyHUuREeMK_UsMykDn9Ac/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "Date inscription": "={{ new Date().toLocaleString('fr-FR') }}",
+            "Source": "Site ZenStay"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date inscription",
+              "displayName": "Date inscription",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        0
+      ],
+      "id": "google-sheets-newsletter",
+      "name": "Ajout Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "pA6IH0H5G9BhRfWh",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Newsletter": {
+      "main": [
+        [
+          {
+            "node": "Email de bienvenue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email de bienvenue": {
+      "main": [
+        [
+          {
+            "node": "Ajout Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
