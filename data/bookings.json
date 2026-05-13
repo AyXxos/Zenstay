@@ -1,9 +1,9 @@
 [
   {
-    "id": "booking-test-001",
+    "id": "booking-edwin-001",
     "createdAt": "2026-05-10T10:30:00.000Z",
-    "name": "Jean Dupont",
-    "email": "test@example.com",
+    "name": "Edwin Mobu",
+    "email": "edwinmobu@gmail.com",
     "listingId": "villa-biarritz",
     "listingTitle": "Villa calme a Biarritz",
     "city": "Biarritz",
@@ -20,10 +20,10 @@
     "paidAt": "2026-05-10T10:35:00.000Z"
   },
   {
-    "id": "booking-test-002",
+    "id": "booking-edwin-002",
     "createdAt": "2026-05-12T14:20:00.000Z",
-    "name": "Jean Dupont",
-    "email": "test@example.com",
+    "name": "Edwin Mobu",
+    "email": "edwinmobu@gmail.com",
     "listingId": "chalet-chamonix",
     "listingTitle": "Chalet paisible a Chamonix",
     "city": "Chamonix",
@@ -37,5 +37,25 @@
     "discount": 0,
     "total": 1190,
     "paymentStatus": "pending"
+  },
+  {
+    "id": "booking-edwin-003",
+    "createdAt": "2026-05-13T09:15:00.000Z",
+    "name": "Edwin Mobu",
+    "email": "edwinmobu@gmail.com",
+    "listingId": "studio-annecy",
+    "listingTitle": "Studio zen a Annecy",
+    "city": "Annecy",
+    "checkIn": "20/07/2026",
+    "checkOut": "25/07/2026",
+    "guests": 2,
+    "nights": 5,
+    "pricePerNight": 85,
+    "subtotal": 425,
+    "discountCode": "",
+    "discount": 0,
+    "total": 425,
+    "paymentStatus": "paid",
+    "paidAt": "2026-05-13T09:20:00.000Z"
   }
 ]
